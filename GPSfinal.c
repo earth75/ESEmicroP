@@ -6,7 +6,7 @@ extern void Flash_Setup_ADV_Reset(void);
 #include <cdefbf533.h>
 #include <sys\exception.h>   // system exception
 #include <string.h>
-#include "image.h" //librairie écran
+#include "image.h" //librairie Ã©cran
 
 #define IMAGE_START 0x00000000
 #define BUFSIZE 150
@@ -50,8 +50,8 @@ EX_INTERRUPT_HANDLER(RX_IRQ)
 	buffer[stream++] = rx;
 	if (rx == 10 && buffer[4] == 'G' && buffer[5] == 'A' && stream>6) 
 	{
-		buffer[stream++] = 13; //ajouter un caractère de terminaison
-		buffer[stream++] = 0; //ajouter un caractère de terminaison
+		buffer[stream++] = 13; //ajouter un caractÃ¨re de terminaison
+		buffer[stream++] = 0; //ajouter un caractÃ¨re de terminaison
 		refresh = 1;
 		sendUART(buffer); //charger le message dans le DMA
 		stream=0; //rewind
@@ -101,13 +101,13 @@ void initScreen(void)
 	Flash_Setup_ADV_Reset(); //Activation du codec video via un broche flash
 	//On configure l'adresse du buffer du DMA
 	*pDMA0_START_ADDR = IMAGE_START;
-	//Taille de l'écran : 
+	//Taille de l'Ã©cran : 
 	*pDMA0_X_COUNT 	= 1716;
 	*pDMA0_X_MODIFY = 1;
 	*pDMA0_Y_COUNT 	= 525;
 	*pDMA0_Y_MODIFY = 1;
 	
-	register_handler(ik_ivg8, PPI_IRQ);	//Int par défaut ikvg8
+	register_handler(ik_ivg8, PPI_IRQ);	//Int par dÃ©faut ikvg8
 	*pSIC_IMASK |= 0x00000100;
 	*pPPI_CONTROL = 0x0003; //Config DMA et PPI
 	*pDMA0_CONFIG = 0x1091; //4,2,2 -> 8 bit color, output
@@ -119,8 +119,8 @@ void initScreen(void)
 void initComm(void)
 {
 	/* calcul automatique du diviseur  */
-	int CTL = *pPLL_CTL; //récupérer a valeur de CTL
-	int DIV = *pPLL_DIV; //récupérer la valeur de DIV
+	int CTL = *pPLL_CTL; //rÃ©cupÃ©rer a valeur de CTL
+	int DIV = *pPLL_DIV; //rÃ©cupÃ©rer la valeur de DIV
 	int MSL = (CTL<<1)>>10; //MSEL = CTL 14:9
 	int SSL = DIV%16; //SSEL = DIV 3:0
 	int div = (CLKIN*MSL)/(SSL*16*BAUDRATE); //calcul du diviseur pour avoir le baudrate
