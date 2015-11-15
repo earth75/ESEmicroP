@@ -246,7 +246,7 @@ void main(void)
 {
 	int i;
 	initGPGGA();
-	strcpy ((char*)msg,"\n\r##TRANSMISSIONS START##\n\r\0");
+	strcpy ((char*)msg,"\n\r##TRANSMISSIONS START##\n\r\0"); //debug string sent in the stream
 	
 	for(i=0;i<BUFSIZE;i++)
 		del[i]=i+32;
