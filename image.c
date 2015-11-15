@@ -1,19 +1,19 @@
 #include "charset.h"
 
-// Début de trame vidéo : synchronisation
+// DÃ©but de trame vidÃ©o : synchronisation
 #define BLANK 0x10801080
 
-// Nombre de colonnes total et sur l'écran
+// Nombre de colonnes total et sur l'Ã©cran
 #define NB_COLONNES_TOTAL 429
 #define NB_COLONNES_BLANK 68
 #define NB_COLONNES NB_COLONNES_TOTAL-NB_COLONNES_BLANK
 
-// Nombre de lignes total et sur l'écran
+// Nombre de lignes total et sur l'Ã©cran
 #define NB_LIGNES_1 20
 #define NB_LIGNES_2 282
 #define NB_LIGNES	NB_LIGNES_2*2-NB_LIGNES_1 *2
 
-// Tempo pour respecter l'accès à la mémoire SDRAM
+// Tempo pour respecter l'accÃ¨s Ã  la mÃ©moire SDRAM
 #define TEMPO 	0x50
 
 int abs(int nb)
@@ -357,6 +357,17 @@ void printChar(unsigned int *image, short x, short y, short lx, short ly, char c
        matrice++;
 	}
 }
+
+/* *  printString with automatic line feed * * *\
+ While debugging we found out that printing large
+ strings caused major screen dysfunctions because
+   the function printed chars beyond the screen
+       space and thus disturbed blanking
+ We made this versin which goes to the next if
+            the string is too large
+\* * * * * * * * * * * * * * * * * * * * * * * */
+
+
 
 void printString(unsigned int *image, short x, short y, short lx, short ly, char *str, unsigned int color)
 {
