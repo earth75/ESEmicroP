@@ -2,12 +2,12 @@
    This is the final program which includes all the 
        features that we aimed for in the TP:
       - GPS readings over UART
-      - GPGGA sentence detection and parsing
+      - GPGGA frame detection and parsing
       - Display of the info in color over PPI
 \* * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-//In order to fully initialise the system, we needed to reset the codec
+//In order to fully initialize the system, we needed to reset the codec
 //We did not want to spend much time doing this so we used an asm function provided with the IDE
 extern void Flash_Setup_ADV_Reset(void); 
 
@@ -15,7 +15,7 @@ extern void Flash_Setup_ADV_Reset(void);
 #include <cdefbf533.h>
 #include <sys\exception.h>   	// system exception
 #include <string.h>
-#include "image.h" 		//librairie écran
+#include "image.h" 		//screen library
 
 #define IMAGE_START 0x00000000
 #define BUFSIZE 150
@@ -45,13 +45,13 @@ volatile int stream=0, TIP = 1, refresh = 0; //tip : transfer in progress
 
 EX_INTERRUPT_HANDLER(PPI_IRQ)
 {
-	*pDMA0_IRQ_STATUS = 0x0001; //acquitter l'interruption PPI
+	*pDMA0_IRQ_STATUS = 0x0001; //acknowledging the interruption PPI
 }
 
 EX_INTERRUPT_HANDLER(DMA_IRQ)
 {
-	*pDMA7_IRQ_STATUS = 0x0001; //acquitter l'interruption PPI
-	TIP = 0; //signaler la fin de transfert au reste du programme
+	*pDMA7_IRQ_STATUS = 0x0001; //acknowledge the interruption PPI
+	TIP = 0; //transfer end flag
 }
 
 EX_INTERRUPT_HANDLER(RX_IRQ)
@@ -61,10 +61,10 @@ EX_INTERRUPT_HANDLER(RX_IRQ)
 	buffer[stream++] = rx;
 	if (rx == 10 && buffer[4] == 'G' && buffer[5] == 'A' && stream>6) 
 	{
-		buffer[stream++] = 13; //ajouter un caractère de terminaison
-		buffer[stream++] = 0; //ajouter un caractère de terminaison
+		buffer[stream++] = 13; //adding terminating character
+		buffer[stream++] = 0; //addin terminating character
 		refresh = 1;
-		sendUART(buffer); //charger le message dans le DMA
+		sendUART(buffer); //charging the message in the DMA
 		stream=0; //rewind
 	}
 }
@@ -112,19 +112,19 @@ void initGPGGA(void)
 
 void initScreen(void)
 {
-	Flash_Setup_ADV_Reset(); //Activation du codec video via un broche flash (asm default code)
-	//On configure l'adresse du buffer du DMA
+	Flash_Setup_ADV_Reset(); //Activation of video codec through flash pin (asm default code)
+	//configurating DMA buffer adress..
 	*pDMA0_START_ADDR = IMAGE_START;
-	//Taille de l'écran : 
+	//..and the screen size 
 	*pDMA0_X_COUNT 	= 1716;
 	*pDMA0_X_MODIFY = 1;
 	*pDMA0_Y_COUNT 	= 525;
 	*pDMA0_Y_MODIFY = 1;
 	
-	register_handler(ik_ivg8, PPI_IRQ);	//Int par défaut ikvg8
+	register_handler(ik_ivg8, PPI_IRQ);	//IT by default ikvg8
 	*pSIC_IMASK |= 0x00000100;
-	*pPPI_CONTROL = 0x0003; //Config DMA et PPI
-	*pDMA0_CONFIG = 0x1091; //4,2,2 -> 8 bit color, output
+	*pPPI_CONTROL = 0x0003; 		//Config DMA et PPI
+	*pDMA0_CONFIG = 0x1091; 		//4,2,2 -> 8 bit color, output
 	
 }
 
@@ -133,11 +133,11 @@ void initComm(void)
 {
 	/* Automatic baudrate divisor calculation  */
 	
-	int CTL = *pPLL_CTL; 				//récupérer a valeur de CTL
-	int DIV = *pPLL_DIV; 				//récupérer la valeur de DIV
+	int CTL = *pPLL_CTL; 				//retrieve CTL value
+	int DIV = *pPLL_DIV; 				//retrieve DIV value
 	int MSL = (CTL<<1)>>10; 			//MSEL = CTL 14:9
 	int SSL = DIV%16; 				//SSEL = DIV 3:0
-	int div = (CLKIN*MSL)/(SSL*16*BAUDRATE);	//calcul du diviseur pour avoir le baudrate defini
+	int div = (CLKIN*MSL)/(SSL*16*BAUDRATE);	//calculating the divisor for the baudrate set
 	
 	/* Now div holds the 16 divisor bits  */
 	
@@ -146,8 +146,8 @@ void initComm(void)
 	*pDMA7_X_MODIFY = 0x0001;
 	*pDMA7_CONFIG = 0x00A0;
 	
-	*pUART_LCR = 0x0083;  //initialiser le peripherique avant de demasquer 
-	*pUART_DLL = div%0x100;  //diviseur en mode speed : 0x060B = 1547
+	*pUART_LCR = 0x0083;  				//initializing the peripheral before unmasking 
+	*pUART_DLL = div%0x100;  			//divisor on speed mode: 0x060B = 1547
 	*pUART_DLH = div>>8;
 	*pUART_LCR = 0x0003;
 	*pUART_IER = 0x0003;
