@@ -40,18 +40,18 @@ typedef struct gpgga{
 gpgga parse;
 
 volatile char buffer [BUFSIZE], msg[BUFSIZE], del[BUFSIZE];
-volatile int stream=0, TIP = 1, refresh = 0; //tip : transfer in progress
+volatile int stream=0, TIP = 1, refresh = 0; //TIP : Transfer In Progress
 
 
 EX_INTERRUPT_HANDLER(PPI_IRQ)
 {
-	*pDMA0_IRQ_STATUS = 0x0001; //acknowledging the interruption PPI
+	*pDMA0_IRQ_STATUS = 0x0001; 	//acknowledging the interruption PPI
 }
 
 EX_INTERRUPT_HANDLER(DMA_IRQ)
 {
-	*pDMA7_IRQ_STATUS = 0x0001; //acknowledge the interruption PPI
-	TIP = 0; //transfer end flag
+	*pDMA7_IRQ_STATUS = 0x0001; 	//acknowledge the interruption PPI
+	TIP = 0; 			//transfer end flag
 }
 
 EX_INTERRUPT_HANDLER(RX_IRQ)
@@ -61,11 +61,11 @@ EX_INTERRUPT_HANDLER(RX_IRQ)
 	buffer[stream++] = rx;
 	if (rx == 10 && buffer[4] == 'G' && buffer[5] == 'A' && stream>6) 
 	{
-		buffer[stream++] = 13; //adding terminating character
-		buffer[stream++] = 0; //addin terminating character
+		buffer[stream++] = 13; 	//adding terminating character
+		buffer[stream++] = 0; 	//addin terminating character
 		refresh = 1;
-		sendUART(buffer); //charging the message in the DMA
-		stream=0; //rewind
+		sendUART(buffer); 	//charging the message in the DMA
+		stream=0; 		//rewind
 	}
 }
 
@@ -112,7 +112,7 @@ void initGPGGA(void)
 
 void initScreen(void)
 {
-	Flash_Setup_ADV_Reset(); //Activation of video codec through flash pin (asm default code)
+	Flash_Setup_ADV_Reset(); 		//Activation of video codec through flash pin (asm default code)
 	//configurating DMA buffer adress..
 	*pDMA0_START_ADDR = IMAGE_START;
 	//..and the screen size 
@@ -160,12 +160,12 @@ void initComm(void)
 }	
 	
 int sendUART(volatile char* msg){
-	if(TIP == 0){
-			TIP = 1;
-			*pDMA7_START_ADDR = (void*)msg;
-			*pDMA7_X_COUNT = strlen((char*)msg);
-			*pDMA7_CONFIG |= 0x1;
-			return 1;
+	if(TIP == 0){					//testing if the transfer's still in progress
+		TIP = 1;
+		*pDMA7_START_ADDR = (void*)msg;
+		*pDMA7_X_COUNT = strlen((char*)msg);
+		*pDMA7_CONFIG |= 0x1;
+		return 1;
 	}
 	else return 0;
 }
@@ -244,8 +244,8 @@ void main(void)
 	initScreen();
 	
 	initComm();
-	while(!sendUART(msg));
+	while(!sendUART(msg));			//waiting for the transfer to finish
 	
 	while(1)
-	if (refresh) parserGPGGA(buffer);
+	if (refresh) parserGPGGA(buffer);	//refreshing the screen
 }
