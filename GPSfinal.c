@@ -28,6 +28,8 @@ void initComm(void);
 int sendUART(volatile char* msg);
 void parserGPGGA(volatile char* buf);
 
+
+//In order to hold the parsing results in a easily manageable way, we created a gpgga structure
 typedef struct gpgga{
 	char h[3];
 	char m[3];
@@ -66,6 +68,9 @@ EX_INTERRUPT_HANDLER(RX_IRQ)
 		stream=0; //rewind
 	}
 }
+
+//We chose to initialise the fields of the structure 
+//to known values for easier debugging and less unknown behavior
 
 void initGPGGA(void)
 {
@@ -107,7 +112,7 @@ void initGPGGA(void)
 
 void initScreen(void)
 {
-	Flash_Setup_ADV_Reset(); //Activation du codec video via un broche flash
+	Flash_Setup_ADV_Reset(); //Activation du codec video via un broche flash (asm default code)
 	//On configure l'adresse du buffer du DMA
 	*pDMA0_START_ADDR = IMAGE_START;
 	//Taille de l'écran : 
@@ -121,19 +126,20 @@ void initScreen(void)
 	*pPPI_CONTROL = 0x0003; //Config DMA et PPI
 	*pDMA0_CONFIG = 0x1091; //4,2,2 -> 8 bit color, output
 	
-	//TODO : init the ADV7171
 }
 
 
 void initComm(void)
 {
-	/* calcul automatique du diviseur  */
-	int CTL = *pPLL_CTL; //récupérer a valeur de CTL
-	int DIV = *pPLL_DIV; //récupérer la valeur de DIV
-	int MSL = (CTL<<1)>>10; //MSEL = CTL 14:9
-	int SSL = DIV%16; //SSEL = DIV 3:0
-	int div = (CLKIN*MSL)/(SSL*16*BAUDRATE); //calcul du diviseur pour avoir le baudrate
-	/* * * * * * * * * * * * * * * * * */
+	/* Automatic baudrate divisor calculation  */
+	
+	int CTL = *pPLL_CTL; 				//récupérer a valeur de CTL
+	int DIV = *pPLL_DIV; 				//récupérer la valeur de DIV
+	int MSL = (CTL<<1)>>10; 			//MSEL = CTL 14:9
+	int SSL = DIV%16; 				//SSEL = DIV 3:0
+	int div = (CLKIN*MSL)/(SSL*16*BAUDRATE);	//calcul du diviseur pour avoir le baudrate defini
+	
+	/* Now div holds the 16 divisor bits  */
 	
 	*pDMA7_START_ADDR = &buffer;
 	*pDMA7_X_COUNT = BUFSIZE;
