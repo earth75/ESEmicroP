@@ -71,7 +71,6 @@ EX_INTERRUPT_HANDLER(RX_IRQ)
 
 //We chose to initialise the fields of the structure 
 //to known values for easier debugging and less unknown behavior
-
 void initGPGGA(void)
 {
 	parse.h[0]='T';
@@ -158,7 +157,12 @@ void initComm(void)
 	register_handler(ik_ivg11, DMA_IRQ);
 	*pSIC_IMASK |= 0x0000C000;
 }	
-	
+
+/* * * * * * * * *   sendUART    * * * * * * * * * *\
+   We wrote the sendUART function because we needed
+   to send debug messages but wanted to use the DMA
+                 for all messages
+\* * * * * * * * * * * * * * * * * * * * * * * * * * */	
 int sendUART(volatile char* msg){
 	if(TIP == 0){
 			TIP = 1;
@@ -170,6 +174,18 @@ int sendUART(volatile char* msg){
 	else return 0;
 }
 
+
+/* * * * * * * * *   parserGPGGA   * * * * * * * * * *\
+   This is the function that fills the GPGGA structure
+   with the GPGGA string an input. The rather long code
+   was intended because we wanted to make the function
+very fast and we knew that GPGGA frames follow a pattern
+
+For simplicity is erases the old data before parsing the
+new data and then writing it. It is also easier to use a
+  local struct with this function, although we did not 
+  implement it yet and thus use a global variable ATM.
+\* * * * * * * * * * * * * * * * * * * * * * * * * * */
 void parserGPGGA(volatile char* buf)
 {
 	printString(IMAGE_START, 166, 170, 2, 4, parse.lat, BLUE);
