@@ -1,12 +1,21 @@
-/*****************************************************************************
- * GPS.c
- *****************************************************************************/
-extern void Flash_Setup_ADV_Reset(void);
+/* * * * * * * * *   GPSfinal.c    * * * * * * * * * *\
+   This is the final program which includes all the 
+       features that we aimed for in the TP:
+      - GPS readings over UART
+      - GPGGA sentence detection and parsing
+      - Display of the info in color over PPI
+\* * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+//In order to fully initialise the system, we needed to reset the codec
+//We did not want to spend much time doing this so we used an asm function provided with the IDE
+extern void Flash_Setup_ADV_Reset(void); 
+
  
 #include <cdefbf533.h>
-#include <sys\exception.h>   // system exception
+#include <sys\exception.h>   	// system exception
 #include <string.h>
-#include "image.h" //librairie écran
+#include "image.h" 		//librairie écran
 
 #define IMAGE_START 0x00000000
 #define BUFSIZE 150
