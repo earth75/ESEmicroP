@@ -367,8 +367,6 @@ void printChar(unsigned int *image, short x, short y, short lx, short ly, char c
             the string is too large
 \* * * * * * * * * * * * * * * * * * * * * * * */
 
-
-
 void printString(unsigned int *image, short x, short y, short lx, short ly, char *str, unsigned int color)
 {
     char *strPos = str;
