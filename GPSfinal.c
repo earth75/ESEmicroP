@@ -163,6 +163,7 @@ void initComm(void)
    to send debug messages but wanted to use the DMA
                  for all messages
 \* * * * * * * * * * * * * * * * * * * * * * * * * * */	
+
 int sendUART(volatile char* msg){
 	if(TIP == 0){					//testing if the transfer's still in progress
 		TIP = 1;
@@ -186,6 +187,7 @@ new data and then writing it. It is also easier to use a
   local struct with this function, although we did not 
   implement it yet and thus use a global variable ATM.
 \* * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 void parserGPGGA(volatile char* buf)
 {
 	printString(IMAGE_START, 166, 170, 2, 4, parse.lat, BLUE);
@@ -246,7 +248,7 @@ void main(void)
 {
 	int i;
 	initGPGGA();
-	strcpy ((char*)msg,"\n\r##TRANSMISSIONS START##\n\r\0"); //debug string sent in the stream
+	strcpy((char*)msg,"\n\r##TRANSMISSIONS START##\n\r\0");		//debug string sent in the stream
 	
 	for(i=0;i<BUFSIZE;i++)
 		del[i]=i+32;
@@ -260,8 +262,8 @@ void main(void)
 	initScreen();
 	
 	initComm();
-	while(!sendUART(msg));			//waiting for the transfer to finish
+	while(!sendUART(msg));						//waiting for the transfer to finish
 	
 	while(1)
-	if (refresh) parserGPGGA(buffer);	//refreshing the screen
+	if (refresh) parserGPGGA(buffer);				//refreshing the screen
 }
